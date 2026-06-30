@@ -7,97 +7,73 @@
         MinHeight="650"
         MinWidth="1000"
         WindowStartupLocation="CenterScreen"
-        Background="#1B1E22">
+        Background="{StaticResource Brush.Background}">
 
     <Grid>
 
         <Grid.RowDefinitions>
-            <RowDefinition Height="80"/>
+            <RowDefinition Height="90"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="35"/>
         </Grid.RowDefinitions>
 
-        <!-- Header -->
-
         <Border Grid.Row="0"
-                Background="#252A30"
-                BorderBrush="#3A4149"
+                Background="{StaticResource Brush.Surface}"
+                BorderBrush="{StaticResource Brush.Border}"
                 BorderThickness="0,0,0,1">
 
             <StackPanel Margin="25,15">
+                <TextBlock Text="{Binding ApplicationName}"
+                           FontSize="32"
+                           FontWeight="SemiBold"
+                           Foreground="{StaticResource Brush.TextPrimary}"/>
 
-                <TextBlock
-                    Text="{Binding ApplicationName}"
-                    FontSize="30"
-                    FontWeight="SemiBold"
-                    Foreground="White"/>
-
-                <TextBlock
-                    Text="{Binding ApplicationSubtitle}"
-                    FontSize="14"
-                    Foreground="#B5BDC7"/>
-
+                <TextBlock Text="{Binding ApplicationSubtitle}"
+                           FontSize="14"
+                           Foreground="{StaticResource Brush.TextSecondary}"/>
             </StackPanel>
 
         </Border>
 
-        <!-- Main Content -->
-
         <Grid Grid.Row="1">
+            <StackPanel Width="350"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center">
 
-            <StackPanel
-                Width="350"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center">
+                <TextBlock Text="{Binding WorkspaceStatus}"
+                           FontSize="24"
+                           FontWeight="SemiBold"
+                           Foreground="{StaticResource Brush.TextPrimary}"
+                           Margin="0,0,0,20"
+                           TextAlignment="Center"/>
 
-                <TextBlock
-                    Text="{Binding WorkspaceStatus}"
-                    FontSize="22"
-                    FontWeight="SemiBold"
-                    Foreground="White"
-                    Margin="0,0,0,20"
-                    TextAlignment="Center"/>
+                <TextBlock Text="{Binding WelcomeMessage}"
+                           FontSize="15"
+                           Foreground="{StaticResource Brush.TextSecondary}"
+                           TextAlignment="Center"
+                           Margin="0,0,0,40"/>
 
-                <TextBlock
-                    Text="{Binding WelcomeMessage}"
-                    FontSize="15"
-                    Foreground="#B5BDC7"
-                    TextAlignment="Center"
-                    Margin="0,0,0,40"/>
+                <Button Content="Create Workspace"
+                        Command="{Binding CreateWorkspaceCommand}"
+                        Style="{StaticResource PrimaryButton}"
+                        Margin="0,0,0,15"/>
 
-                <Button
-                    Content="Create Workspace"
-                    Command="{Binding CreateWorkspaceCommand}"
-                    Height="45"
-                    Margin="0,0,0,15"
-                    FontSize="15"/>
-
-                <Button
-                    Content="Open Workspace"
-                    Command="{Binding OpenWorkspaceCommand}"
-                    Height="45"
-                    FontSize="15"/>
-
+                <Button Content="Open Workspace"
+                        Command="{Binding OpenWorkspaceCommand}"
+                        Style="{StaticResource SecondaryButton}"/>
             </StackPanel>
-
         </Grid>
 
-        <!-- Status Bar -->
+        <Border Grid.Row="2"
+                Background="{StaticResource Brush.Surface}"
+                BorderBrush="{StaticResource Brush.Border}"
+                BorderThickness="1,1,1,0">
 
-        <Border
-            Grid.Row="2"
-            Background="#252A30"
-            BorderBrush="#3A4149"
-            BorderThickness="1,1,1,0">
-
-            <TextBlock
-                Text="{Binding StatusMessage}"
-                Margin="15,0"
-                VerticalAlignment="Center"
-                Foreground="#B5BDC7"/>
-
+            <TextBlock Text="{Binding StatusMessage}"
+                       Margin="15,0"
+                       VerticalAlignment="Center"
+                       Foreground="{StaticResource Brush.TextSecondary}"/>
         </Border>
 
     </Grid>
-
 </Window>
