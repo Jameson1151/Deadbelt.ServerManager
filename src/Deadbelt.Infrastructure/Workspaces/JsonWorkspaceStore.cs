@@ -10,7 +10,8 @@ public sealed class JsonWorkspaceStore : IWorkspaceStore
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
-        WriteIndented = true
+        WriteIndented = true,
+        PropertyNameCaseInsensitive = true
     };
 
     public async Task SaveAsync(
@@ -42,5 +43,38 @@ public sealed class JsonWorkspaceStore : IWorkspaceStore
             metadata,
             JsonOptions,
             cancellationToken);
+    }
+
+    public async Task<Workspace?> LoadAsync(
+        string folderPath,
+        CancellationToken cancellationToken = default)
+    {
+        var workspaceFilePath = Path.Combine(folderPath, WorkspaceFileName);
+
+        if (!File.Exists(workspaceFilePath))
+            return null;
+
+        await using var stream = File.OpenRead(workspaceFilePath);
+
+        var metadata = await JsonSerializer.DeserializeAsync<WorkspaceMetadata>(
+            stream,
+            JsonOptions,
+            cancellationToken);
+
+        if (metadata is null)
+            throw new InvalidOperationException("workspace.json could not be read.");
+
+        if (string.IsNullOrWhiteSpace(metadata.Name))
+            throw new InvalidOperationException("workspace.json is missing a workspace name.");
+
+        if (string.IsNullOrWhiteSpace(metadata.Version))
+            throw new InvalidOperationException("workspace.json is missing a workspace version.");
+
+        return new Workspace(
+            metadata.Name,
+            folderPath,
+            metadata.Description,
+            metadata.CreatedUtc,
+            metadata.Version);
     }
 }
