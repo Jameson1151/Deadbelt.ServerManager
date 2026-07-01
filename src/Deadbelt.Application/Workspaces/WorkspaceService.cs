@@ -65,6 +65,47 @@ public sealed class WorkspaceService : IWorkspaceService
         }
     }
 
+    public async Task<OpenWorkspaceResult> OpenWorkspaceAsync(
+        OpenWorkspaceRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(request.FolderPath))
+            return OpenWorkspaceResult.Failure("Workspace folder is required.");
+
+        if (!IsValidFolderPath(request.FolderPath))
+            return OpenWorkspaceResult.Failure("Workspace folder must be a valid full path.");
+
+        try
+        {
+            var workspace = await _workspaceStore.LoadAsync(
+                request.FolderPath,
+                cancellationToken);
+
+            if (workspace is null)
+                return OpenWorkspaceResult.Failure("The selected folder is not a valid Deadbelt workspace.");
+
+            _logger.LogInformation(
+                "Workspace opened: {WorkspaceName} at {WorkspacePath}",
+                workspace.Name,
+                workspace.Path);
+
+            return OpenWorkspaceResult.Success(workspace);
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogWarning(ex, "Workspace open validation failed.");
+
+            return OpenWorkspaceResult.Failure(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to open workspace.");
+
+            return OpenWorkspaceResult.Failure(
+                "Failed to open workspace. See logs for details.");
+        }
+    }
+
     private static bool IsValidFolderPath(string folderPath)
     {
         if (string.IsNullOrWhiteSpace(folderPath))

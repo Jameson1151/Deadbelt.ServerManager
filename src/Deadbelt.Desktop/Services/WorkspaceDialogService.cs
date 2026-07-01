@@ -1,6 +1,7 @@
 using System.Windows;
 using Deadbelt.Desktop.ViewModels;
 using Deadbelt.Desktop.Views;
+using Microsoft.Win32;
 
 namespace Deadbelt.Desktop.Services;
 
@@ -24,5 +25,17 @@ public sealed class WorkspaceDialogService : IWorkspaceDialogService
             viewModel.WorkspaceName,
             viewModel.FolderPath,
             viewModel.Description);
+    }
+
+    public string? ShowOpenWorkspaceDialog(Window owner)
+    {
+        var dialog = new OpenFolderDialog
+        {
+            Title = "Select Deadbelt Workspace Folder"
+        };
+
+        return dialog.ShowDialog(owner) == true
+            ? dialog.FolderName
+            : null;
     }
 }

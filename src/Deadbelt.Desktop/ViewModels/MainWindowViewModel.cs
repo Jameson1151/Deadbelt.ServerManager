@@ -23,7 +23,7 @@ public sealed class MainWindowViewModel : ViewModelBase
         _workspaceDialogService = workspaceDialogService;
 
         CreateWorkspaceCommand = new AsyncRelayCommand(CreateWorkspaceAsync);
-        OpenWorkspaceCommand = new RelayCommand(OpenWorkspace);
+        OpenWorkspaceCommand = new AsyncRelayCommand(OpenWorkspaceAsync);
     }
 
     public string ApplicationName => "DEADBELT";
@@ -98,12 +98,47 @@ public sealed class MainWindowViewModel : ViewModelBase
         StatusMessage = "Workspace created.";
     }
 
-    private static void OpenWorkspace()
+    private async Task OpenWorkspaceAsync()
     {
-        MessageBox.Show(
-            "Open Workspace is not implemented yet.",
-            "Deadbelt",
-            MessageBoxButton.OK,
-            MessageBoxImage.Information);
+        var owner = System.Windows.Application.Current.MainWindow;
+
+        if (owner is null)
+        {
+            StatusMessage = "Unable to open workspace dialog.";
+            return;
+        }
+
+        var folderPath = _workspaceDialogService.ShowOpenWorkspaceDialog(owner);
+
+        if (string.IsNullOrWhiteSpace(folderPath))
+        {
+            StatusMessage = "Open workspace cancelled.";
+            return;
+        }
+
+        StatusMessage = "Opening workspace...";
+
+        var result = await _workspaceService.OpenWorkspaceAsync(
+            new OpenWorkspaceRequest
+            {
+                FolderPath = folderPath
+            });
+
+        if (!result.Succeeded || result.Workspace is null)
+        {
+            StatusMessage = "Failed to open workspace.";
+
+            MessageBox.Show(
+                result.ErrorMessage ?? "Failed to open workspace.",
+                "Deadbelt",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+
+            return;
+        }
+
+        WorkspaceStatus = $"Workspace: {result.Workspace.Name}";
+        WelcomeMessage = $"Active workspace location: {result.Workspace.Path}";
+        StatusMessage = "Workspace opened.";
     }
 }
